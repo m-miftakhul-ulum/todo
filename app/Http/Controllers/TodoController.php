@@ -63,7 +63,15 @@ class TodoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $todo = new Todo();
+        $validate = $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        $todo->findOrFail($id)->update([
+            'title' => $validate['title']
+        ]);
+        return back();
     }
 
     /**
