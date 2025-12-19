@@ -10,6 +10,8 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 
 </head>
@@ -23,13 +25,17 @@
                 <h5 class="mb-0">➕ Tambah Tugas Baru</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('todos.store') }}" method="POST">
+                <form action="{{ route('todos.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div class="input-group">
+                    <div class="input-group mb-2">
+                        <input type="file" name="gambar" id="gambar" class="form-control">
+                    </div>
+                    <div class="input-group mb-2">
                         <input type="text" name="title" class="form-control"
                             placeholder="Tulis nama tugas di sini..." required>
-                        <button type="submit" class="btn btn-success">Simpan Tugas</button>
                     </div>
+                    <button type="submit" class="btn btn-success">Simpan Tugas</button>
+
                 </form>
             </div>
         </div>
@@ -47,8 +53,11 @@
 
                         {{-- Judul Tugas --}}
                         <span
-                            class="flex-grow-1 @if ($todo->is_completed) text-decoration-line-through text-muted @endif">
-                            {{ $todo->title }}
+                            class="flex-grow-1 d-flex align-items-center @if ($todo->is_completed) text-decoration-line-through text-muted @endif">
+                            @if ($todo->gambar)
+                                <img src="{{ asset('storage/' . $todo->gambar) }}" alt="Gambar tugas" class="me-3 rounded" style="width:48px;height:48px;object-fit:cover"> 
+                            @endif
+                            <span>{{ $todo->title }}</span>
                         </span>
 
                         {{-- Aksi (Tombol) --}}
@@ -121,8 +130,7 @@
         </div>
     </div>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
