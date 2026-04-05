@@ -24,6 +24,18 @@ class TodoController extends Controller
         //
     }
 
+    public function testBucket()
+    {
+        // Storage::disk('gcs')->put('example.txt', 'Halo Google Cloud!');
+
+        // $url = Storage::disk('gcs')->url('example.txt');
+
+        // return response()->json([
+        //     'message' => 'File berhasil diunggah ke Google Cloud Storage',
+        //     'url' => $url,
+        // ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -36,7 +48,7 @@ class TodoController extends Controller
 
         // Handle file upload if present
         if ($request->hasFile('gambar')) {
-            $data['gambar'] = $request->file('gambar')->store('todos', 'public');
+            $data['gambar'] = $request->file('gambar')->store('todos', 'gcs');
         }
 
         Todo::create([
@@ -78,10 +90,10 @@ class TodoController extends Controller
 
         // If there's a new image, delete old one and store the new file
         if ($request->hasFile('gambar')) {
-            if ($todo->gambar && Storage::disk('public')->exists($todo->gambar)) {
-                Storage::disk('public')->delete($todo->gambar);
+            if ($todo->gambar && Storage::disk('gcs')->exists($todo->gambar)) {
+                Storage::disk('gcs')->delete($todo->gambar);
             }
-            $data['gambar'] = $request->file('gambar')->store('todos', 'public');
+            $data['gambar'] = $request->file('gambar')->store('todos', 'gcs');
         }
 
         // Only update the fields that are present in $data
@@ -98,8 +110,8 @@ class TodoController extends Controller
         $todo = Todo::findOrFail($id);
 
         // delete associated image if any
-        if ($todo->gambar && Storage::disk('public')->exists($todo->gambar)) {
-            Storage::disk('public')->delete($todo->gambar);
+        if ($todo->gambar && Storage::disk('gcs')->exists($todo->gambar)) {
+            Storage::disk('gcs')->delete($todo->gambar);
         }
 
         $todo->delete();

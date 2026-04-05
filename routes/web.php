@@ -11,3 +11,4 @@ Route::get('/', function () {
 });
 
 Route::resource("todos", TodoController::class);
+Route::get('/test-bucket', [TodoController::class, 'testBucket']);

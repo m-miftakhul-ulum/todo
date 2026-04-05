@@ -55,8 +55,14 @@
                         <span
                             class="flex-grow-1 d-flex align-items-center @if ($todo->is_completed) text-decoration-line-through text-muted @endif">
                             @if ($todo->gambar)
-                                <img src="{{ asset('storage/' . $todo->gambar) }}" alt="Gambar tugas" class="me-3 rounded" style="width:48px;height:48px;object-fit:cover"> 
+                                {{-- <img src="{{ asset('storage/' . $todo->gambar) }}" alt="Gambar tugas"
+                                    class="me-3 rounded" style="width:48px;height:48px;object-fit:cover"> --}}
+
+                                <img src="{{  "https://storage.googleapis.com/". "bucket-playground-s-11/". $todo->gambar }}" alt="Gambar tugas"
+                                    class="me-3 rounded" style="width:48px;height:48px;object-fit:cover">
                             @endif
+
+
                             <span>{{ $todo->title }}</span>
                         </span>
 
@@ -116,7 +122,8 @@
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">Batal</button>
-                                        <button type="submit" class="btn btn-info text-white">Simpan Perubahan</button>
+                                        <button type="submit" class="btn btn-info text-white">Simpan
+                                            Perubahan</button>
                                     </div>
                                 </form>
                             </div>
