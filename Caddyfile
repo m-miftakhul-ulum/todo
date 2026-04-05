@@ -1,12 +1,28 @@
 {
-    auto_https off
+    # Global options
+    admin off
 }
 
 :80 {
     root * /app/public
-    encode gzip
-
-    php_server
-
+    php_fastcgi unix//var/run/php/php-fpm.sock
     file_server
+    
+    # Security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+    }
+    
+    # Compress responses
+    encode gzip zstd
+    
+    # Laravel specific - handle public directory
+    @public {
+        file {
+            try_files {path} /index.php?{query}
+        }
+    }
+    rewrite @public {path}
 }

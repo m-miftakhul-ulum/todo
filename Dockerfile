@@ -1,44 +1,36 @@
-# Menggunakan image resmi FrankenPHP
-FROM dunglas/frankenphp:latest-php8.3
+FROM dunglas/frankenphp:php8.3
 
-# 1. Install dependencies sistem dan ekstensi PHP yang dibutuhkan Laravel
+ENV SERVER_NAME=":80"
+
+WORKDIR /app
+COPY . /app
+
 RUN apt-get update && apt-get install -y \
+    zip \
     libzip-dev \
+    libxml2-dev \
     libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    libcurl4-openssl-dev \
+    libonig-dev \
     libicu-dev \
-    unzip \
+    libsodium-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-install \
     zip \
-    gd \
     intl \
+    mbstring \
+    xml \
+    curl \
+    mysqli \
     pdo_mysql \
+    sodium \
     bcmath \
-    opcache
+    && docker-php-ext-enable zip sodium bcmath \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
-# 3. Pengaturan Working Directory
-WORKDIR /app
-
-# 4. Copy source code Laravel
-COPY . .
-
-# 5. Install dependencies Laravel (tanpa dev dependencies untuk prod)
-RUN composer install --no-dev --optimize-autoloader
-
-# 6. Set permission untuk storage dan cache
-RUN chown -R www-data:www-data storage bootstrap/cache
-
-# 7. Konfigurasi Environment FrankenPHP
-# Mengaktifkan Laravel Worker Mode untuk performa maksimal
-ENV FRANKENPHP_CONFIG="worker ./public/index.php"
-ENV PHP_INI_SCAN_DIR=":/usr/local/etc/php/conf.d"
-
-# 8. Ekspos port (Caddy default 80 dan 443)
-EXPOSE 80
-EXPOSE 443
-EXPOSE 443/udp
-
-# 9. Jalankan FrankenPHP
-CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+RUN composer install
