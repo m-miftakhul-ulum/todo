@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel-app
+  labels:
+    app: laravel
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: laravel
+  template:
+    metadata:
+      labels:
+        app: laravel
+    spec:
+      containers:
+      - name: laravel-container
+        # Ganti dengan path image Anda di Google Artifact Registry
+        image: ulum75/app-franken:gcp-version-v1
+        ports:
+        - containerPort: 8080
+        
+        # Load ENV dari Secret
+        envFrom:
+        - secretRef:
+            name: laravel-secrets
+        
+        # Resource management (best practice GKE)
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+        # Health checks (FrankenPHP server)
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 20
