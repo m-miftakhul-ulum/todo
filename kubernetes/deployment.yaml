@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel-test-release-deployment
+spec:
+  selector:
+    matchLabels:
+      app: laravel-test
+      version: release
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        gke-gcsfuse/volumes: "true"
+      labels:
+        app: laravel-test
+        version: release
+    spec:
+      # serviceAccountName: sa-gcs
+      restartPolicy: Always
+      initContainers:
+        - name: init-copy-code
+          image: laravel:test
+          imagePullPolicy: Never
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cp -r /var/www/. /shared && \
+              mkdir -p /shared/storage/logs /shared/bootstrap/cache && \
+              chown -R www-data:www-data /shared && \
+              chmod -R ug+rwX /shared && \
+              cd /shared && \
+              php artisan config:clear && \
+              php artisan cache:clear && \
+              php artisan route:clear && \
+              php artisan view:clear && \
+              php artisan storage:link && \
+              php artisan migrate --force 
+        
+# u (user/owner) dan g (group): Aturan ini berlaku untuk pemilik file dan anggota grupnya (yaitu www-data).
+# +rwX: Berikan izin untuk Membaca (r - read), Menulis/Mengedit (w - write), dan mengeksekusi (X - execute). 
+# Huruf X besar artinya izin eksekusi hanya diberikan pada folder saja (agar bisa dibuka/di-list lokasinya), 
+# bukan pada file biasa, kecuali file tersebut memang sudah punya izin eksekusi dari awal.
+
+          volumeMounts:
+            - name: app-code
+              mountPath: /shared
+
+      containers:
+      - name: laravel-test
+        image: laravel:test
+        imagePullPolicy: Never
+        volumeMounts:
+            - name: app-code
+              mountPath: /var/www
+            - name: gcs-volume
+              mountPath: /var/www/storage/app/public
+        ports:
+          - containerPort: 9000
+        
+        # resources:
+        #   requests:
+        #     memory: 768Mi
+        #     cpu: 300m
+        #   limits:
+        #     memory: 2Gi
+        #     cpu: 1000m
+      
+      
+      - name: nginx
+        image: nginx:test
+        imagePullPolicy: Never
+        volumeMounts:
+            - name: app-code
+              mountPath: /var/www
+            - name: gcs-volume
+              mountPath: /var/www/storage/app/public
+        ports:
+          - containerPort: 80
+
+        # resources:
+        #   requests:
+        #     memory: 50Mi
+        #     cpu: 10m
+        #   limits:
+        #     memory: 300Mi
+        #     cpu: 200m
+      
+
+      volumes:
+        - name: app-code
+          emptyDir: {}
+        - name: gcs-volume
+          persistentVolumeClaim:
+            claimName: laravel-test-pvc

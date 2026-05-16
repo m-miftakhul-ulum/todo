@@ -1,27 +1,50 @@
+version: '5'
 services:
-  app:
-    image: ulum75/app-franken:latest
-    ports:
-      - "8000:80"
-    depends_on:
-      db:
-        condition: service_healthy
 
-  db:
-    image: mysql:8.0
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: root
+
+  app:
+    container_name: app_test
+    image: laravel:test
+    restart: always
+
+  web:
+    container_name: nginx
+    image: nginx:test
     ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      - "8080:80"
+    depends_on:
+      - app
+    restart: always
+
 
 volumes:
-  db_data:
+  pgdata:
+
+  # cache:
+  #   image: redis:alpine
+  #   container_name: cache_test
+  #   ports:
+  #     - "6379:6379"
+  #   restart: always
+
+  # queue:
+  #   image: com.selancar_app
+  #   container_name: com.selancar_queue
+  #   restart: always
+  #   command: php artisan queue:work
+  #   volumes:
+  #     - ./:/var/www/
+
+  # cron:
+  #   image: com.selancar_app
+  #   # build:
+  #   #   context: ./
+  #   #   dockerfile: docker/cron.dockerfile
+  #   container_name: com.selancar_cron
+  #   depends_on:
+  #     - app
+  #   volumes:
+  #     - ./:/var/www 
+  #     - ./docker/cron.sh:/var/www/docker/cron.sh
+  #   command: ['chmod', '+x', '/var/www/docker/cron.sh']
+  #   restart: always
