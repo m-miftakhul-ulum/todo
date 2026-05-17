@@ -1,0 +1,6 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: backend-production-sc
+provisioner: kubernetes.io/no-provisioner # Menggandalkan PV manual (static)
+volumeBindingMode: WaitForFirstConsumer

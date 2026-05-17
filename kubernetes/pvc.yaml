@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: laravel-test-pv
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: 1Gi
+  storageClassName: backend-production-sc
+  mountOptions:
+    - implicit-dirs
+    - uid=33
+    - gid=33
+  csi:
+    driver: gcsfuse.csi.storage.gke.io
+    volumeHandle: laravel-test-assets  # Your GCS bucket name
+    readOnly: false
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: laravel-test-pvc
+  namespace: production
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: laravel-test-pv
+  storageClassName: backend-production-sc

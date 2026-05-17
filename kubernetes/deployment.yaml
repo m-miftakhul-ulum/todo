@@ -21,7 +21,7 @@ spec:
         app: laravel-test
         version: release
     spec:
-      # serviceAccountName: sa-gcs
+      serviceAccountName: sa-gcs
       restartPolicy: Always
       initContainers:
         - name: init-copy-code

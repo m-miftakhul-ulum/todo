@@ -24,7 +24,7 @@ RUN sed -i 's/^pm\.max_children = .*/pm.max_children = 20/' /usr/local/etc/php-f
 # install composer
 COPY --from=composer/composer:2.2.18 /usr/bin/composer /usr/bin/composer
 
-ADD ./docker/php/php.ini /usr/local/etc/php/php.ini
+ADD ./docker/gke/php.ini /usr/local/etc/php/php.ini
 
 # set time zone
 ENV TZ=Asia/Jakarta
@@ -33,15 +33,11 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 FROM base AS app
 
 WORKDIR /var/www
-
-RUN chown -R www-data:www-data /var/www
-COPY --chown=www-data:www-data . /var/www/
-
-USER www-data
+ADD . /var/www/
 
 # RUN mkdir -p storage/logs && ln -sf /dev/stdout storage/logs/laravel.log
 
-RUN composer install --no-interaction --optimize-autoloader
+RUN composer install
 RUN php artisan config:clear
 RUN php artisan route:clear
 RUN php artisan view:clear
