@@ -24,7 +24,7 @@ RUN sed -i 's/^pm\.max_children = .*/pm.max_children = 20/' /usr/local/etc/php-f
 # install composer
 COPY --from=composer/composer:2.2.18 /usr/bin/composer /usr/bin/composer
 
-ADD ./docker/gke/php.ini /usr/local/etc/php/php.ini
+ADD ./docker/php/php.ini /usr/local/etc/php/php.ini
 
 # set time zone
 ENV TZ=Asia/Jakarta
@@ -37,7 +37,7 @@ ADD . /var/www/
 
 # RUN mkdir -p storage/logs && ln -sf /dev/stdout storage/logs/laravel.log
 
-RUN composer install
+RUN composer install --no-interaction --optimize-autoloader
 RUN php artisan config:clear
 RUN php artisan route:clear
 RUN php artisan view:clear

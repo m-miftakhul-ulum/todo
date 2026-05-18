@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-test
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-test
+  template:
+    metadata:
+      labels:
+        app: mysql-test
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "rahasia123"  # Password root
+        - name: MYSQL_DATABASE
+          value: "laravel_db"  # Nama database otomatis dibuat
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: production
+spec:
+  selector:
+    app: mysql-test
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306

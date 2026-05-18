@@ -26,7 +26,7 @@ spec:
       initContainers:
         - name: init-copy-code
           image: laravel:test
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
             - |
@@ -40,6 +40,7 @@ spec:
               php artisan route:clear && \
               php artisan view:clear && \
               php artisan storage:link && \
+              php artisan key:generate && \
               php artisan migrate --force 
         
 # u (user/owner) dan g (group): Aturan ini berlaku untuk pemilik file dan anggota grupnya (yaitu www-data).
@@ -54,7 +55,28 @@ spec:
       containers:
       - name: laravel-test
         image: laravel:test
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
+        env:  # Wajib dimasukkan juga di init container agar proses migrasi tahu jalan ke MySQL
+        - name: APP_NAME
+          value: Laravel
+        - name: APP_ENV
+          value: local
+        - name: APP_KEY
+          value: base64:4xXg2pArPnIciOKT50zGr7B8cNbmNfXFmZuRPSBmJzU=
+        - name: APP_DEBUG
+          value: "true"
+        - name: DB_CONNECTION
+          value: "mysql"
+        - name: DB_HOST
+          value: "mysql-service"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_DATABASE
+          value: "laravel_db"
+        - name: DB_USERNAME
+          value: "root"
+        - name: DB_PASSWORD
+          value: "rahasia123"
         volumeMounts:
             - name: app-code
               mountPath: /var/www
@@ -74,7 +96,7 @@ spec:
       
       - name: nginx
         image: nginx:test
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         volumeMounts:
             - name: app-code
               mountPath: /var/www
