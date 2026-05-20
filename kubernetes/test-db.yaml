@@ -1,38 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql-test
+  name: postgres-test
   namespace: production
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql-test
+      app: postgres-test
   template:
     metadata:
       labels:
-        app: mysql-test
+        app: postgres-test
     spec:
       containers:
-      - name: mysql
-        image: mysql:8.0
+      - name: postgres
+        image: postgres:15-alpine # Menggunakan versi 15 yang ringan
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: "rahasia123"  # Password root
-        - name: MYSQL_DATABASE
+        - name: POSTGRES_PASSWORD
+          value: "rahasia123"  # Password untuk user postgres
+        - name: POSTGRES_DB
           value: "laravel_db"  # Nama database otomatis dibuat
         ports:
-        - containerPort: 3306
+        - containerPort: 5432
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service
+  name: postgres-service
   namespace: production
 spec:
   selector:
-    app: mysql-test
+    app: postgres-test
   ports:
     - protocol: TCP
-      port: 3306
-      targetPort: 3306
+      port: 5432
+      targetPort: 5432

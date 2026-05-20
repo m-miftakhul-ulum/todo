@@ -23,6 +23,11 @@ spec:
     spec:
       serviceAccountName: sa-gcs
       restartPolicy: Always
+
+      hostAliases:
+      - ip: "127.0.0.1" # gunakan ini jika uji coba 
+        hostnames:
+        - "app"
       initContainers:
         - name: init-copy-code
           image: laravel:test
@@ -43,6 +48,11 @@ spec:
               php artisan key:generate && \
               php artisan migrate --force 
         
+
+  # bagian ini tidak usah kalo uji coba dan php artisan migrate --force  pindah ke cd /shared 
+  # php artisan storage:link && \
+  # php artisan key:generate
+
 # u (user/owner) dan g (group): Aturan ini berlaku untuk pemilik file dan anggota grupnya (yaitu www-data).
 # +rwX: Berikan izin untuk Membaca (r - read), Menulis/Mengedit (w - write), dan mengeksekusi (X - execute). 
 # Huruf X besar artinya izin eksekusi hanya diberikan pada folder saja (agar bisa dibuka/di-list lokasinya), 
@@ -66,11 +76,11 @@ spec:
         - name: APP_DEBUG
           value: "true"
         - name: DB_CONNECTION
-          value: "mysql"
+          value: "pgsql"
         - name: DB_HOST
-          value: "mysql-service"
+          value: "postgres-service"
         - name: DB_PORT
-          value: "3306"
+          value: "5432"
         - name: DB_DATABASE
           value: "laravel_db"
         - name: DB_USERNAME

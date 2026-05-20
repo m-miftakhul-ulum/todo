@@ -1,12 +1,29 @@
+# kind: Service
+# apiVersion: v1
+# metadata:
+#   name: laravel-test-svc
+# spec:
+#   type: NodePort
+#   selector:
+#     app: laravel-test
+#   ports:
+#   - protocol: TCP
+#     port: 80
+#     targetPort: 80
+
+
+
 kind: Service
 apiVersion: v1
 metadata:
   name: laravel-test-svc
+  namespace: production      
 spec:
-  type: NodePort
+  type: ClusterIP           
   selector:
-    app: laravel-test
+    app: laravel-test       
   ports:
-  - protocol: TCP
+  - name: http             
+    protocol: TCP
     port: 80
     targetPort: 80
